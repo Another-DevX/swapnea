@@ -2,6 +2,7 @@
 import { ConnectButton, useChainModal } from "@rainbow-me/rainbowkit";
 import React, { useState } from "react";
 import ChainButton from "@/components/ChainButton";
+import QR from "@/components/QR";
 function page() {
   const { openChainModal } = useChainModal();
 
@@ -15,6 +16,7 @@ function page() {
           action=""
         >
           <label htmlFor="">Leé tu QR acá</label>
+          <QR/>
           <label htmlFor="">Escribí el valor acá</label>
           <input
             required
