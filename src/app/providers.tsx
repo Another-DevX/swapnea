@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import * as React from 'react';
+import * as React from "react";
 import {
   RainbowKitProvider,
   getDefaultWallets,
   connectorsForWallets,
-} from '@rainbow-me/rainbowkit';
+} from "@rainbow-me/rainbowkit";
 import {
   argentWallet,
   trustWallet,
   ledgerWallet,
-} from '@rainbow-me/rainbowkit/wallets';
-import { configureChains, createConfig, WagmiConfig } from 'wagmi';
+} from "@rainbow-me/rainbowkit/wallets";
+import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import {
   mainnet,
   polygon,
@@ -19,31 +19,27 @@ import {
   arbitrum,
   zora,
   goerli,
-} from 'wagmi/chains';
-import { publicProvider } from 'wagmi/providers/public';
+} from "wagmi/chains";
+import { publicProvider } from "wagmi/providers/public";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [goerli],
+  [mainnet, polygon, optimism, arbitrum, zora, goerli],
   [publicProvider()]
 );
 
-const projectId = 'YOUR_PROJECT_ID';
+const projectId = "YOUR_PROJECT_ID";
 
 const { wallets } = getDefaultWallets({
-  appName: 'SwapNea',
+  appName: "SwapNea",
   projectId,
   chains,
 });
 
 const demoAppInfo = {
-    appName: 'SwapNea',
-
+  appName: "SwapNea",
 };
 
-const connectors = connectorsForWallets([
-  ...wallets,
-
-]);
+const connectors = connectorsForWallets([...wallets]);
 
 const wagmiConfig = createConfig({
   autoConnect: true,
