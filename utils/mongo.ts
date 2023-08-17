@@ -38,6 +38,23 @@ export async function getTrx() {
   }
 }
 
+export async function validateValue(data) {
+  const client = new MongoClient(url, { useUnifiedTopology: true });
+  try {
+    await client.connect();
+    const db = client.db(dbName);
+    const collection = db.collection('providers');
+    // Insertar el objeto en la colección
+    const _provider = await collection.findOne({from: data.provider});
+    return _provider.price*data.amountUsed - data.amount == 0;
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    // Cerrar la conexión
+    client.close();
+  }  
+}
+
 export async function createTrx(data) {
   const client = new MongoClient(url, { useUnifiedTopology: true });
   try {
