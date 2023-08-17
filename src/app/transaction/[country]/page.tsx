@@ -1,5 +1,4 @@
 "use client";
-import { ConnectButton, useChainModal } from "@rainbow-me/rainbowkit";
 import React, { useCallback, useEffect, useState } from "react";
 import ChainButton from "@/components/ChainButton";
 import QR from "@/components/QR";
@@ -7,14 +6,43 @@ import Image from "next/image";
 import Logo from "@/images/2.png";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import axios from "axios";
 
-function Page() {
+function Page({ params }: { params: any }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams()!;
 
+  const [status, setStatus] = useState({
+    data: null,
+    isLoading: true,
+    isError: false,
+  });
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await axios.get(`/api/trx?country=${params.country}`);
+        console.debug(response);
+        setStatus({
+          data: response.data,
+          isLoading: false,
+          isError: false,
+        });
+      } catch (e) {
+        setStatus({
+          data: null,
+          isLoading: false,
+          isError: true,
+        });
+      }
+    }
+    fetchData();
+  }, []);
+
   const createQueryString = useCallback(
     (name: string, value: string) => {
+      // @ts-expect-error
       const params = new URLSearchParams(searchParams);
       params.set(name, value);
 
@@ -41,28 +69,26 @@ function Page() {
     });
   };
 
-  const handleOnPay = (e: any) => {
+  const handleOnPay = async (e: any) => {
     e.preventDefault();
     const formattedText = qrStatus.data
       .replace(/\//g, "%2F")
       .replace(/\+/g, "%2B");
-    console.debug(
-      `${pathname}/chat/?${createQueryString("code", formattedText)}`
-    );
+
     router.push(
       `${pathname}/chat/?${createQueryString("code", formattedText)}`
     );
   };
 
-  function getAcurrancy (){
-    const region = pathname.split('/')[pathname.split('/').length - 1]
-    switch (region){
-      case 'col' : 
-        return 'COP'
-      case 'arg':
-        return 'ARS'
+  function getAcurrancy() {
+    const region = pathname.split("/")[pathname.split("/").length - 1];
+    switch (region) {
+      case "col":
+        return "COP";
+      case "arg":
+        return "ARS";
       default:
-        return
+        return;
     }
   }
 
@@ -96,46 +122,54 @@ function Page() {
         <Image height={128} src={Logo} alt="logo" />
       </div>
       <div className="h-full flex justify-center items-center">
-      <div className="bg-slate-100 p-5 flex flex-col gap-2 justify-center items-center rounded-lg">
-        <h1 className="text-4xl">Pasarela de pago</h1>
-        <form
-          className="flex flex-col justify-center items-start gap-4 w-full"
-          onSubmit={handleOnPay}
-        >
-          <div className="cont">
-            <label className="text-lg">Leé tu QR acá</label>
+        <div className="bg-slate-100 p-5 flex flex-col gap-2 justify-center items-center rounded-lg">
+          <h1 className="text-4xl">Pasarela de pago</h1>
+          <form
+            className="flex flex-col justify-center items-start gap-4 w-full"
+            onSubmit={handleOnPay}
+          >
+            <div className="cont">
+              <label className="text-lg">Leé tu QR acá</label>
 
-            <button
-              onClick={() => setOpenCamera(true)}
-              className={`main-btn ${qrStatus.readed && "bg-green-700"}`}
-            >
-              {qrStatus.readed ? "Leer de nuevo" : "Leer"}
+              <button
+                onClick={() => setOpenCamera(true)}
+                className={`main-btn ${qrStatus.readed && "bg-green-700"}`}
+              >
+                {qrStatus.readed ? "Leer de nuevo" : "Leer"}
+              </button>
+            </div>
+
+            <div className="cont">
+              <label className="text-lg">Escribí el valor acá</label>
+              <input
+                className="h-12 rounded-md px-2"
+                required
+                type="number"
+                placeholder={`Monto en ${getAcurrancy()}`}
+                inputMode="decimal"
+                step={0.0001}
+              />
+            </div>
+            <div className="cont">
+              {!status.isLoading ? (
+                status.isError ? (
+                  <p>Error al cargar los precios</p>
+                ) : (
+                  <p>{tokenValue} USDT</p>
+                )
+              ) : (
+                <p>Cargando...</p>
+              )}
+              <ChainButton />
+            </div>
+            <button className="main-btn w-full" type="submit">
+              Pagar
             </button>
-          </div>
-
-          <div className="cont">
-            <label className="text-lg">Escribí el valor acá</label>
-            <input
-              className="h-12 rounded-md px-2"
-              required
-              type="number"
-              placeholder={`Monto en ${getAcurrancy()}`}
-              inputMode="decimal"
-              step={0.0001}
-            />
-          </div>
-          <div className="cont">
-            <p>{tokenValue} USDT</p>
-            <ChainButton />
-          </div>
-          <button className="main-btn w-full" type="submit">
-            Pagar
-          </button>
-        </form>
-      </div>
+          </form>
+        </div>
       </div>
     </main>
   );
 }
 
-export default page;
+export default Page;

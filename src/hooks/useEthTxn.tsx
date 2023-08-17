@@ -7,12 +7,11 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 
-function useTxn() {
+function useTxn(ammount: number) {
   const [addresses, setAdresses] = useState({
     token: zeroAddress,
     scrow: zeroAddress,
   });
-  const [ammount, setAmmount] = useState(0);
   const [txnHash, setTxnHash] = useState();
   const { chain } = useNetwork();
 
@@ -39,10 +38,6 @@ function useTxn() {
     address: addresses.token,
     abi: erc20ABI,
     functionName: "approve",
-    args: [
-      process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
-      parseEther((ammount as number).toString()),
-    ],
   });
 
   const { data, isError, error, isLoading } = useWaitForTransaction({
@@ -51,27 +46,24 @@ function useTxn() {
 
   const Scrow = useContractWrite({
     address: addresses.scrow,
-    abi: erc20ABI,
-    functionName: "approve",
-    args: [
-      process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
-      parseEther((ammount as number).toString()),
-    ],
+    abi: someAbi,
+    functionName: "transfer",
+    args: [process.env.NEXT_PUBLIC_ETH_CONTRACT_ADDRESS as `0x${string}`],
   });
 
   useEffect(() => {
-    async function scrowCall () {
-        const data = await Scrow.writeAsync()
-        return data.hash
+    async function scrowCall(ammount: number) {
+      const data = await Scrow.writeAsync({
+
+      });
+      return data.hash;
     }
     if (isError) {
       console.error(error);
     } else if (!isLoading && data) {
-      scrowCall()
+      scrowCall(ammount);
     }
   }, [data, isError, isLoading]);
 
-  return { ERC20, setAmmount, setTxnHash };
+  return { ERC20, setTxnHash };
 }
-
-export default useTxn;

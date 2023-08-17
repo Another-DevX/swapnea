@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/navigation";
 import Logo from "@/images/2.png";
@@ -13,7 +13,7 @@ export default function Home() {
     col: false,
     arg: false,
   });
-  const handleOnSubmit = (e) => {
+  const handleOnSubmit = (e:any) => {
     e.preventDefault();
     console.debug(e.target.country.value);
 
@@ -29,15 +29,15 @@ export default function Home() {
     }
   };
 
-  const handleOnChange = (e:any) => {
+  const handleOnChange = (e:ChangeEvent<HTMLInputElement>) => {
     const defaultSelections = {
       col:false,
       arg:false
     }
-    console.debug(e.target.id)
+    console.debug((e.target as HTMLElement).id)
     setSelections({
       ...defaultSelections,
-      [e.target.id]: true
+      [(e.target as HTMLElement).id]: true
     })
   };
 
