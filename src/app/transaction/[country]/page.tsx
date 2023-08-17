@@ -118,10 +118,10 @@ function Page({ params }: { params: any }) {
       await approve({
         ammount: tokenAmmount,
         functions: {
-          isLoading: Escrow.isLoading,
-          isError: Escrow.isError,
-          error: Escrow.error,
-          txn: Escrow.writeAsync,
+          isLoading: ERC20.isLoading,
+          isError: ERC20.isError,
+          error: ERC20.error,
+          txn: ERC20.writeAsync,
         },
         chain: chain?.name as string,
       });

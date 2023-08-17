@@ -41,7 +41,7 @@ export async function getTrx(country: string) {
   }
 }
 
-export async function validateValue(data) {
+export async function validateValue(data: any) {
   const client = new MongoClient(url, { useUnifiedTopology: true });
   try {
     await client.connect();
@@ -61,7 +61,7 @@ export async function validateValue(data) {
   }
 }
 
-export async function createTrx(data) {
+export async function createTrx(data: any) {
   const client = new MongoClient(url, { useUnifiedTopology: true });
   try {
     await client.connect();
@@ -95,7 +95,7 @@ export async function validateTrx(id: string) {
     client.close();
   }
 }
-export async function updateTrx(data, id: string) {
+export async function updateTrx(data: any, id: string) {
   const client = new MongoClient(url, { useUnifiedTopology: true });
   try {
     await client.connect();
