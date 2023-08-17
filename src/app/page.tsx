@@ -1,13 +1,18 @@
 "use client";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/navigation";
+import Logo from "@/images/2.png";
 
 export default function Home() {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
+  const [selections, setSelections] = useState({
+    col: false,
+    arg: false,
+  });
   const handleOnSubmit = (e) => {
     e.preventDefault();
     console.debug(e.target.country.value);
@@ -23,44 +28,79 @@ export default function Home() {
         break;
     }
   };
+
+  const handleOnChange = (e:any) => {
+    const defaultSelections = {
+      col:false,
+      arg:false
+    }
+    console.debug(e.target.id)
+    setSelections({
+      ...defaultSelections,
+      [e.target.id]: true
+    })
+  };
+
+  useEffect(()=>{
+    console.debug(selections)
+  },[selections])
+
   return (
     <>
       <AnimatePresence>
         {showModal && (
           <motion.div
-            className="fixed min-h-screen min-w-full flex justify-center items-center bg-black bg-opacity-50"
+            className="fixed min-h-screen min-w-full flex justify-center items-center z-20 bg-black bg-opacity-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-slate-200 rounded-lg p-10 flex flex-col justify-center items-center"
+              className="bg-slate-200 rounded-lg w-5/6 p-10 flex flex-col justify-center items-center"
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0 }}
             >
               <form
                 onSubmit={handleOnSubmit}
-                className="flex flex-col justify-center items-center gap-3"
+                className="flex flex-col w-full justify-center items-center gap-3"
               >
                 <h1 className="text-4xl font-bold">
                   Primero selecciona tu pais
                 </h1>
                 <label
-                  className="flex flex-row gap-2 justify-center items-center"
-                  htmlFor=""
+                  className="flex w-full flex-row gap-2 justify-between items-center"
+                  htmlFor="col"
                 >
-                  <input type="radio" name="country" value="COL" id="country" />
-                  Colombia
-                  <br />
+                  <input
+                    type="radio"
+                    className="hidden"
+                    name="country"
+                    value="COL"
+                    id="col"
+                    onChange={handleOnChange}
+                  />
+                  <div id="colCont" className={`input-cont ${selections.col && 'active'}`}>
+                    <span className="fi fi-co" />
+                    Colombia
+                  </div>
                 </label>
                 <label
-                  className="flex flex-row gap-2 justify-center items-center"
-                  htmlFor=""
+                  className="flex w-full flex-row gap-2 justify-between items-center"
+                  htmlFor="arg"
                 >
-                  <input type="radio" name="country" value="ARG" id="country" />
-                  Argentina <br />
-                </label>
+                  <input
+                    type="radio"
+                    className="hidden"
+                    name="country"
+                    value="ARG"
+                    id="arg"
+                    onChange={handleOnChange}
+                  />
+                  <div id="argCont" className={`input-cont ${selections.arg && 'active'}`}>
+                    <span className="fi fi-ar" /> Argentina
+                  </div>
+                </label>  
                 <button className="main-btn" type="submit">
                   Siguiente
                 </button>
@@ -69,14 +109,19 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
-      <main className="flex min-h-   <h1>Hola</h1>een flex-col items-center justify-center p-24">
-        <nav className="fixed top-0 w-full py-10 flex justify-end px-5 items-center shadow-xl h-2">
+      <main className="bg-slate-200 min-h-screen flex justify-center items-center">
+        <div className="w-full flex justify-center items-center top-0 absolute">
+          <Image height={128} src={Logo} alt="logo" />
+        </div>
+        <div className="text-center">
+          <h1 className="hex text-2xl font-bold">
+            Usá tus criptos en el día a día
+          </h1>
+          <p className="font-light">Con swapnea revolucionamos el p2p</p>
+        </div>
+        <div className="absolute bottom-0 w-full justify-between py-5 px-3 flex flex-row">
           <ConnectButton />
-        </nav>
-        <div className="w-full h-full gap-2 flex flex-col justify-center items-start">
-          <h1 className="text-4xl font-bold text-blue-800">Swapnea</h1>
-          <p className="text-2xl font-thin">Tus cripto a la mano</p>
-          <button className="main-btn" onClick={() => setShowModal(true)}>
+          <button onClick={() => setShowModal(true)} className="main-btn">
             Empezar
           </button>
         </div>

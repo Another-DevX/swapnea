@@ -2,8 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'hexa';
+  src: url(../utils/fonts/Hexadecimal.otf);
+}
+
+
 @layer components{
   .main-btn  {
     @apply px-6 py-2 bg-blue-700 rounded-md text-white font-bold shadow-lg
+  }
+  .main-bg{
+    background: linear-gradient(220deg, #01092d, #000000);
+     min-height: 100%;
+
+  }
+  .hexa{
+    font-family: 'hexa';
+  }
+  .input-cont{
+    @apply flex shadow-sm border-2 border-gray-300 w-full p-2 rounded-lg flex-row gap-2
+  }
+  .active{
+    @apply bg-sky-300 transition-all duration-100
+  }
+
+  .cont{
+    @apply bg-slate-200 w-full flex flex-col px-4 py-3 gap-2 rounded-md
   }
 }

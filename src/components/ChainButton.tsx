@@ -3,7 +3,7 @@ import React from "react";
 
 function ChainButton() {
   return (
-    <ConnectButton.Custom>
+    <ConnectButton.Custom  >
       {({
         account,
         chain,
@@ -34,7 +34,7 @@ function ChainButton() {
             {(() => {
               if (!connected) {
                 return (
-                  <button onClick={openConnectModal} type="button">
+                  <button className="main-btn w-full" onClick={openConnectModal} type="button">
                     Connect Wallet
                   </button>
                 );
@@ -42,15 +42,16 @@ function ChainButton() {
 
               if (chain.unsupported) {
                 return (
-                  <button onClick={openChainModal} type="button">
+                  <button className="main-btn w-full bg-red-600" onClick={openChainModal} type="button">
                     Wrong network
                   </button>
                 );
               }
 
-              return (
+              return (  
                 <div>
                   <button
+                  className="main-btn w-full bg-transparent flex justify-center items-center flex-row text-black"
                     onClick={openChainModal}
                     style={{ display: "flex", alignItems: "center" }}
                     type="button"
