@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { getTrx, createTrx, validateValue } from "../../../../utils/mongo";
 
@@ -11,7 +11,8 @@ export async function POST(req: Request, res: any) {
   return NextResponse.json({ message: "created", trx });
 }
 
-export async function GET(req: Request, res: any) {
-  const trx = await getTrx();
-  return NextResponse.json({ message: "ok", trx });
+export async function GET(req: NextRequest) {
+  const country = String(req.nextUrl.searchParams.get("country"));
+  const trx = await getTrx(country);
+  return NextResponse.json({ messageF: "ok", trx });
 }

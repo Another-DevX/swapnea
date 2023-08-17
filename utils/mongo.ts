@@ -20,14 +20,13 @@ export async function addProvider(data: any) {
     client.close();
   }
 }
-export async function getTrx() {
+export async function getTrx(country: string) {
   const client = new MongoClient(url, { useUnifiedTopology: true });
   try {
     await client.connect();
     const db = client.db(dbName);
     const collection = db.collection('providers');
-    // Insertar el objeto en la colección
-    const validator = await collection.findOne({});
+    const validator = await collection.findOne({country});
     console.log({validator})
     return validator;
   } catch (error) {
