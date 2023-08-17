@@ -1,32 +1,42 @@
 import React, { useEffect, useState } from "react";
-import { parseEther, zeroAddress } from "viem";
+import { Address, parseEther, zeroAddress } from "viem";
 import {
   erc20ABI,
   useContractWrite,
   useNetwork,
   useWaitForTransaction,
 } from "wagmi";
+import Abis from "@/utils/abis.json";
 
-function useTxn(ammount: number) {
-  const [addresses, setAdresses] = useState({
+function useTxn() {
+  const [addresses, setAdresses] = useState<{
+    token: Address;
+    escrow: Address;
+  }>({
     token: zeroAddress,
-    scrow: zeroAddress,
+    escrow: zeroAddress,
   });
   const [txnHash, setTxnHash] = useState();
   const { chain } = useNetwork();
+
+  console.debug({
+    token: process.env.NEXT_PUBLIC_CELO_USDT as `0x${string}`,
+    escrow: process.env.NEXT_PUBLIC_CELO_ESCROW as `0x${string}`,
+  });
+  console.debug(chain?.name);
 
   useEffect(() => {
     switch (chain?.name) {
       case "Ethereum":
         setAdresses({
           token: zeroAddress,
-          scrow: zeroAddress,
+          escrow: zeroAddress,
         });
         break;
       case "Alfajores":
         setAdresses({
-          token: zeroAddress,
-          scrow: zeroAddress,
+          token: process.env.NEXT_PUBLIC_CELO_USDT as `0x${string}`,
+          escrow: process.env.NEXT_PUBLIC_CELO_ESCROW as `0x${string}`,
         });
         break;
       default:
@@ -34,36 +44,23 @@ function useTxn(ammount: number) {
     }
   }, [chain]);
 
+  console.debug(addresses);
+
   const ERC20 = useContractWrite({
     address: addresses.token,
-    abi: erc20ABI,
+    abi: Abis.USDTCoin,
     functionName: "approve",
   });
 
-  const { data, isError, error, isLoading } = useWaitForTransaction({
-    hash: txnHash,
-  });
 
-  const Scrow = useContractWrite({
-    address: addresses.scrow,
-    abi: someAbi,
-    functionName: "transfer",
+  const Escrow = useContractWrite({
+    address: addresses.escrow,
+    abi: Abis.Escrow,
+    functionName: "deposit",
     args: [process.env.NEXT_PUBLIC_ETH_CONTRACT_ADDRESS as `0x${string}`],
   });
 
-  useEffect(() => {
-    async function scrowCall(ammount: number) {
-      const data = await Scrow.writeAsync({
-
-      });
-      return data.hash;
-    }
-    if (isError) {
-      console.error(error);
-    } else if (!isLoading && data) {
-      scrowCall(ammount);
-    }
-  }, [data, isError, isLoading]);
-
-  return { ERC20, setTxnHash };
+  return { ERC20, Escrow };
 }
+
+export { useTxn };

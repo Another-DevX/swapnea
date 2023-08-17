@@ -13,24 +13,21 @@ type fnStd = {
   isLoading: boolean;
   isError: boolean;
   error: any;
-  txn: () => Promise<{
+  txn: ({ args }: { args: (bigint | `0x${string}`)[] }) => Promise<{
     hash: `0x${string}`;
   }>;
 };
 
 export interface approveProps {
-  address: Address;
-  abi: Abi;
+  chain: string;
   ammount: number;
-  functionName: string;
   functions: fnArg;
 }
 
 export interface transferProps {
-  address: Address;
-  abi: Abi;
-  functionName: string;
   functions: fnStd;
+  ammount: number;
+  provider: Address
 }
 
 export interface Contract_service {

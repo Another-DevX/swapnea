@@ -1,18 +1,36 @@
-import { parseEther } from "viem";
+import { parseEther, zeroAddress } from "viem";
 import { Contract_service, approveProps, transferProps } from "./types";
 import axios from "axios";
 
-async function approve({
-  ammount,
-  functions,
-}: approveProps) {
+function getTokenAddress(chain: string) {
+  switch (chain) {
+    case "Ethereum":
+      return zeroAddress;
+    case "Alfajores":
+      return process.env.NEXT_PUBLIC_CELO_ESCROW as string;
+      break;
+    default:
+      return;
+  }
+}
+
+export async function approve({ ammount, functions, chain }: approveProps) {
+  console.debug(functions, chain, ammount);
   try {
-    const data = await functions.txn({
-        args: [
-            process.env.NEXT_PUBLIC_ETH_CONTRACT_ADDRESS as `0x${string}`,
-            parseEther((ammount as number).toString()),
-          ],
+    console.debug({
+      args: [
+        getTokenAddress(chain) as `0x${string}`,
+        parseEther((ammount as number).toString()),
+      ],
     });
+    const data = await functions.txn({
+      args: [
+        getTokenAddress(chain) as `0x${string}`,
+        // @ts-expect-error
+        ammount * 10 ** 18,
+      ],
+    });
+    if (!data.hash) throw new Error("Error");
     return data.hash;
   } catch (e) {
     console.error(e);
@@ -20,14 +38,21 @@ async function approve({
   }
 }
 
-async function transfer({functions} : transferProps) {
-    try{
-        const data = await functions.txn()
-        return data.hash
-    }catch(e){
-        console.error(e)
-        return null
-    }
+export async function transfer({
+  functions,
+  ammount,
+  provider,
+}: transferProps) {
+  try {
+    const data = await functions.txn({
+      //@ts-expect-error
+      args: [ammount, provider],
+    });
+    return data.hash;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
 }
 
 const ethereum: Contract_service = {

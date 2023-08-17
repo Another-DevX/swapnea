@@ -8,6 +8,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { useAccount, useNetwork } from "wagmi";
+import { approve, transfer } from "@/services/ethereum";
+import { useTxn } from "@/hooks/useEthTxn";
+import { toast } from "react-toastify";
 
 function Page({ params }: { params: any }) {
   const [openCamera, setOpenCamera] = useState(false);
@@ -16,7 +19,7 @@ function Page({ params }: { params: any }) {
     error: false,
     data: "",
   });
-  const [localCurrencyValue, setLocalCurrencyValue] = useState(0);
+  const [localCurrencyValue, setLocalCurrencyValue] = useState("");
   const [tokenValue, setTokenValue] = useState(0);
   const router = useRouter();
   const pathname = usePathname();
@@ -32,7 +35,6 @@ function Page({ params }: { params: any }) {
     async function fetchData() {
       try {
         const response = await axios.get(`/api/trx?country=${params.country}`);
-        console.debug(response);
         setStatus({
           data: response.data.trx,
           isLoading: false,
@@ -73,22 +75,20 @@ function Page({ params }: { params: any }) {
   const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (status.data === undefined || status.data === null)
       return setTokenValue(0);
-    console.debug(e.target.value);
-    console.debug(status.data);
-
     const inputValue = parseFloat(e.target.value); // Convertir el valor a número
+    setLocalCurrencyValue(e.target.value);
     if (isNaN(inputValue)) {
       return; // Salir si el valor no es un número
     }
 
     // @ts-expect-error
     const calculatedValue = inputValue / status.data.price;
-    setLocalCurrencyValue(parseFloat(e.target.value));
     setTokenValue(Number(calculatedValue.toFixed(2)));
   };
 
   const { address } = useAccount();
   const { chain } = useNetwork();
+  const { ERC20, Escrow } = useTxn();
 
   const handleOnPay = async (e: any) => {
     e.preventDefault();
@@ -97,23 +97,67 @@ function Page({ params }: { params: any }) {
       .replace(/\+/g, "%2B");
 
     try {
+      toast.loading("Enviando la transaccion", {
+        toastId: "txn",
+      });
       if (!status.data) {
         throw new Error("Failed to load the txn data");
       }
-      await axios.post("/api/trx", {
+      // @ts-expect-error
+      const tokenAmmount = parseFloat(localCurrencyValue) / status.data.price;
+      const data = await axios.post("/api/trx", {
         // @ts-expect-error
         provider: status.data.from,
         address: address,
         currency: "USDT",
         network: chain?.name,
         amount: localCurrencyValue,
-        amountUsed: tokenValue,
+        amountUsed: tokenAmmount,
       });
-    } catch (e) {}
-
-    router.push(
-      `${pathname}/chat/?${createQueryString("code", formattedText)}`
-    );
+      console.debug(data);
+      await approve({
+        ammount: tokenAmmount,
+        functions: {
+          isLoading: Escrow.isLoading,
+          isError: Escrow.isError,
+          error: Escrow.error,
+          txn: Escrow.writeAsync,
+        },
+        chain: chain?.name as string,
+      });
+      await transfer({
+        ammount: tokenAmmount,
+        provider: data.data.address,
+        functions: {
+          isLoading: Escrow.isLoading,
+          isError: Escrow.isError,
+          error: Escrow.error,
+          txn: Escrow.writeAsync,
+        },
+      });
+      await axios.post("/api/txn-finish", {
+        // @ts-expect-error
+        id: status.data.from,
+        qrInfo: qrStatus.data,
+        category: "Cerveza",
+        price: localCurrencyValue,
+        country: params.country === "col" ? "COP" : "ARP",
+      });
+      toast.success("Transaccion en proceso", {
+        toastId: "txn",
+        autoClose: 2000,
+        onClose: () =>
+          router.push(
+            `${pathname}/chat/?${createQueryString("code", formattedText)}`
+          ),
+      });
+    } catch (e) {
+      toast.error("Transaccion fallida", {
+        toastId: "txn",
+        autoClose: 2000,
+      });
+      console.error(e);
+    }
   };
 
   function getAcurrancy() {

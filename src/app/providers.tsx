@@ -17,13 +17,26 @@ import {
   polygon,
   optimism,
   arbitrum,
-  zora,
   goerli,
+  sepolia,
+  celoAlfajores,
+  polygonMumbai,
 } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [mainnet, polygon, optimism, arbitrum, zora, goerli],
+  [
+    mainnet,
+    polygon,
+    optimism,
+    arbitrum,
+    sepolia,
+    celoAlfajores,
+    polygonMumbai,
+    goerli,
+  ],
   [publicProvider()]
 );
 
@@ -55,6 +68,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains} appInfo={demoAppInfo}>
         {mounted && children}
+        <ToastContainer />
       </RainbowKitProvider>
     </WagmiConfig>
   );
