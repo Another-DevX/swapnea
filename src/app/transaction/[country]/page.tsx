@@ -7,7 +7,7 @@ import Logo from "@/images/2.png";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
-import { useAccount, useNetwork } from "wagmi";
+import { useAccount, useNetwork, useWaitForTransaction } from "wagmi";
 import { approve, transfer } from "@/services/ethereum";
 import { useTxn } from "@/hooks/useEthTxn";
 import { toast } from "react-toastify";
@@ -24,6 +24,8 @@ function Page({ params }: { params: any }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams()!;
+  const [showModal, setShowModal] = useState(false);
+  const [hash, sethash] = useState()
 
   const [status, setStatus] = useState({
     data: null,
@@ -89,6 +91,9 @@ function Page({ params }: { params: any }) {
   const { address } = useAccount();
   const { chain } = useNetwork();
   const { ERC20, Escrow } = useTxn();
+  const { data,isLoading, isError} = useWaitForTransaction({
+    hash:hash
+  })
 
   const handleOnPay = async (e: any) => {
     e.preventDefault();
@@ -115,7 +120,7 @@ function Page({ params }: { params: any }) {
         amountUsed: tokenAmmount,
       });
       console.debug(data);
-      await approve({
+      const hash = await approve({
         ammount: tokenAmmount,
         functions: {
           isLoading: ERC20.isLoading,
@@ -125,32 +130,10 @@ function Page({ params }: { params: any }) {
         },
         chain: chain?.name as string,
       });
-      await transfer({
-        ammount: tokenAmmount,
-        provider: data.data.address,
-        functions: {
-          isLoading: Escrow.isLoading,
-          isError: Escrow.isError,
-          error: Escrow.error,
-          txn: Escrow.writeAsync,
-        },
-      });
-      await axios.post("/api/txn-finish", {
-        // @ts-expect-error
-        id: status.data.from,
-        qrInfo: qrStatus.data,
-        category: "Cerveza",
-        price: localCurrencyValue,
-        country: params.country === "col" ? "COP" : "ARP",
-      });
-      toast.success("Transaccion en proceso", {
-        toastId: "txn",
-        autoClose: 2000,
-        onClose: () =>
-          router.push(
-            `${pathname}/chat/?${createQueryString("code", formattedText)}`
-          ),
-      });
+      // @ts-expect-error
+      sethash(hash)
+ 
+      setShowModal(true);
     } catch (e) {
       toast.error("Transaccion fallida", {
         toastId: "txn",
@@ -158,6 +141,39 @@ function Page({ params }: { params: any }) {
       });
       console.error(e);
     }
+  };
+
+  const handleOnContinueFlow = async () => {
+    // @ts-expect-error
+    const tokenAmmount = parseFloat(localCurrencyValue) / status.data.price;
+    await transfer({
+      ammount: tokenAmmount,
+      //@ts-expect-error
+      provider: data.data.address,
+      functions: {
+        isLoading: Escrow.isLoading,
+        isError: Escrow.isError,
+        error: Escrow.error,
+        txn: Escrow.writeAsync,
+      },
+    });
+    await axios.post("/api/txn-finish", {
+      // @ts-expect-error
+      id: status.data.from,
+      qrInfo: qrStatus.data,
+      category: "Cerveza",
+      price: localCurrencyValue,
+      country: params.country === "col" ? "COP" : "ARP",
+    });
+    toast.success("Transaccion en proceso", {
+      toastId: "txn",
+      autoClose: 2000,
+      onClose: () =>
+        router.push(
+          // @ts-expect-error
+          `${pathname}/chat/?${createQueryString("code", formattedText)}`
+        ),
+    });
   };
 
   function getAcurrancy() {
@@ -194,6 +210,24 @@ function Page({ params }: { params: any }) {
                 disableFlip={false}
                 qrCodeSuccessCallback={handleOnQRScan}
               />
+            </motion.div>
+          </motion.div>
+        )}
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed bg-black top-0 left-0 right-0 bottom-0 bg-opacity-20 flex justify-center items-center"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+              className=" bg-white p-5 w-full m-2 rounded-lg"
+            >
+              <h1>Estamos procesando tu transaccion</h1>
+              <button onClick={handl}>Continuar</button>
             </motion.div>
           </motion.div>
         )}
