@@ -6,9 +6,14 @@ export async function POST(req: Request, res: any) {
   const data = await req.json();
   const dataSend = { state: "initial", createdAt: new Date(), ...data };
   const isUsed = await validateValue(data);
-  if (!isUsed) return NextResponse.json({ message: "ERROR_PRICE_INCORRECT" });
+  if (!isUsed?.isValid)
+    return NextResponse.json({ message: "ERROR_PRICE_INCORRECT" });
   const trx = await createTrx(dataSend);
-  return NextResponse.json({ message: "created", trx });
+  return NextResponse.json({
+    message: "created",
+    trx,
+    address: isUsed.address,
+  });
 }
 
 export async function GET(req: NextRequest) {
