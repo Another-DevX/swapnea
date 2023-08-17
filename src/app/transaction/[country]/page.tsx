@@ -25,7 +25,9 @@ function Page({ params }: { params: any }) {
   const pathname = usePathname();
   const searchParams = useSearchParams()!;
   const [showModal, setShowModal] = useState(false);
-  const [hash, sethash] = useState()
+  const [hash, sethash] = useState();
+  const [provider, setProvider] = useState()
+
 
   const [status, setStatus] = useState({
     data: null,
@@ -91,9 +93,9 @@ function Page({ params }: { params: any }) {
   const { address } = useAccount();
   const { chain } = useNetwork();
   const { ERC20, Escrow } = useTxn();
-  const { data,isLoading, isError} = useWaitForTransaction({
-    hash:hash
-  })
+  const { isLoading, isError } = useWaitForTransaction({
+    hash: hash,
+  });
 
   const handleOnPay = async (e: any) => {
     e.preventDefault();
@@ -102,9 +104,7 @@ function Page({ params }: { params: any }) {
       .replace(/\+/g, "%2B");
 
     try {
-      toast.loading("Enviando la transaccion", {
-        toastId: "txn",
-      });
+
       if (!status.data) {
         throw new Error("Failed to load the txn data");
       }
@@ -119,6 +119,7 @@ function Page({ params }: { params: any }) {
         amount: localCurrencyValue,
         amountUsed: tokenAmmount,
       });
+      setProvider(data.data.address)
       console.debug(data);
       const hash = await approve({
         ammount: tokenAmmount,
@@ -131,14 +132,11 @@ function Page({ params }: { params: any }) {
         chain: chain?.name as string,
       });
       // @ts-expect-error
-      sethash(hash)
- 
+      sethash(hash);
+
       setShowModal(true);
     } catch (e) {
-      toast.error("Transaccion fallida", {
-        toastId: "txn",
-        autoClose: 2000,
-      });
+  
       console.error(e);
     }
   };
@@ -149,7 +147,7 @@ function Page({ params }: { params: any }) {
     await transfer({
       ammount: tokenAmmount,
       //@ts-expect-error
-      provider: data.data.address,
+      provider: provider ,
       functions: {
         isLoading: Escrow.isLoading,
         isError: Escrow.isError,
@@ -157,7 +155,8 @@ function Page({ params }: { params: any }) {
         txn: Escrow.writeAsync,
       },
     });
-    await axios.post("/api/txn-finish", {
+    setShowModal(false)
+    await axios.post("/api/trx-finish", {
       // @ts-expect-error
       id: status.data.from,
       qrInfo: qrStatus.data,
@@ -165,15 +164,10 @@ function Page({ params }: { params: any }) {
       price: localCurrencyValue,
       country: params.country === "col" ? "COP" : "ARP",
     });
-    toast.success("Transaccion en proceso", {
-      toastId: "txn",
-      autoClose: 2000,
-      onClose: () =>
-        router.push(
-          // @ts-expect-error
-          `${pathname}/chat/?${createQueryString("code", formattedText)}`
-        ),
-    });
+    router.push(
+      // @ts-expect-error
+      `${pathname}/chat/?${createQueryString("code", formattedText)}`
+    ),
   };
 
   function getAcurrancy() {
@@ -224,10 +218,13 @@ function Page({ params }: { params: any }) {
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0 }}
-              className=" bg-white p-5 w-full m-2 rounded-lg"
+              className=" bg-white p-5 w-11/12 m-2 flex flex-col justify-center items-center rounded-lg"
             >
-              <h1>Estamos procesando tu transaccion</h1>
-              <button onClick={handl}>Continuar</button>
+              <h1 className="text-2xl font-bold text-center" >Estamos procesando tu transaccion</h1>
+              {!isLoading ||
+                (!isError && (
+                  <button  className="main-btn" onClick={handleOnContinueFlow}>Continuar</button>
+                ))}
             </motion.div>
           </motion.div>
         )}
