@@ -26,6 +26,7 @@ function Page({ params }: { params: any }) {
   const searchParams = useSearchParams()!;
   const [showModal, setShowModal] = useState(false);
   const [hash, sethash] = useState();
+  const [id, setId] = useState();
   const [provider, setProvider] = useState();
 
   const [status, setStatus] = useState({
@@ -114,6 +115,7 @@ function Page({ params }: { params: any }) {
         amount: localCurrencyValue,
         amountUsed: tokenAmmount,
       });
+      setId(data.data.trx.insertedId);
       setProvider(data.data.address);
       console.debug(data);
       const hash = await approve({
@@ -139,7 +141,7 @@ function Page({ params }: { params: any }) {
     const formattedText = qrStatus.data
       .replace(/\//g, "%2F")
       .replace(/\+/g, "%2B");
-    alert(pathname)
+    alert(pathname);
     // @ts-expect-error
     const tokenAmmount = parseFloat(localCurrencyValue) / status.data.price;
 
@@ -155,18 +157,22 @@ function Page({ params }: { params: any }) {
           txn: Escrow.writeAsync,
         },
       });
+      alert(JSON.stringify(Escrow));
       await axios.post("/api/trx-finish", {
-        // @ts-expect-error
-        id: status.data.from,
+        id,
         qrInfo: qrStatus.data,
         category: "Cerveza",
         price: localCurrencyValue,
         country: params.country === "col" ? "COP" : "ARP",
       });
-      alert(txn)
+      alert(txn);
       setShowModal(false);
       router.push(
-        `${pathname}/chat/?${createQueryString("code", formattedText)}`
+        `${pathname}/chat/?${createQueryString(
+          "code",
+          formattedText
+          //@ts-expect-error
+        )}&${createQueryString("id", id)}`
       );
     } catch (e) {
       alert(e);

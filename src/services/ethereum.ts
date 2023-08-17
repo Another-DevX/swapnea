@@ -46,8 +46,7 @@ export async function transfer({
   try {
     alert([ammount * 10 ** 18, provider])
     const data = await functions.txn({
-      //@ts-expect-error
-      args: [ammount * 10 ** 18, provider],
+      args: [parseEther(ammount.toString()), provider],
     });
     if (!data.hash) throw new Error("Error");
     return data.hash;

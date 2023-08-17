@@ -18,11 +18,18 @@ export async function POST(req: Request, res: any) {
 const sendMessage = async (qrInfo: string, text: string) => {
   try {
     const qrInfoSend = qrInfo.replace(/\+/g, "%2B");
+    console.log({
+      chat_id: CHANNEL_ID,
+      caption: text,
+      photo: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrInfoSend}`,
+    },
+    API_URL)
     const response = await axios.post(`${API_URL}/sendPhoto`, {
       chat_id: CHANNEL_ID,
       caption: text,
       photo: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrInfoSend}`,
     });
+    console.log({response})
     if (response.data.ok) {
       console.log("Message sent successfully.");
     } else {
