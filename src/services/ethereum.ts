@@ -44,10 +44,12 @@ export async function transfer({
   provider,
 }: transferProps) {
   try {
+    alert([ammount * 10 ** 18, provider])
     const data = await functions.txn({
       //@ts-expect-error
-      args: [ammount, provider],
+      args: [ammount * 10 ** 18, provider],
     });
+    if (!data.hash) throw new Error("Error");
     return data.hash;
   } catch (e) {
     console.error(e);

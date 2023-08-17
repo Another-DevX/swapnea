@@ -26,8 +26,7 @@ function Page({ params }: { params: any }) {
   const searchParams = useSearchParams()!;
   const [showModal, setShowModal] = useState(false);
   const [hash, sethash] = useState();
-  const [provider, setProvider] = useState()
-
+  const [provider, setProvider] = useState();
 
   const [status, setStatus] = useState({
     data: null,
@@ -99,12 +98,8 @@ function Page({ params }: { params: any }) {
 
   const handleOnPay = async (e: any) => {
     e.preventDefault();
-    const formattedText = qrStatus.data
-      .replace(/\//g, "%2F")
-      .replace(/\+/g, "%2B");
 
     try {
-
       if (!status.data) {
         throw new Error("Failed to load the txn data");
       }
@@ -119,7 +114,7 @@ function Page({ params }: { params: any }) {
         amount: localCurrencyValue,
         amountUsed: tokenAmmount,
       });
-      setProvider(data.data.address)
+      setProvider(data.data.address);
       console.debug(data);
       const hash = await approve({
         ammount: tokenAmmount,
@@ -136,36 +131,46 @@ function Page({ params }: { params: any }) {
 
       setShowModal(true);
     } catch (e) {
-  
       console.error(e);
     }
   };
 
   const handleOnContinueFlow = async () => {
+    const formattedText = qrStatus.data
+      .replace(/\//g, "%2F")
+      .replace(/\+/g, "%2B");
+    alert(pathname)
     // @ts-expect-error
     const tokenAmmount = parseFloat(localCurrencyValue) / status.data.price;
-    await transfer({
-      ammount: tokenAmmount,
-      //@ts-expect-error
-      provider: provider ,
-      functions: {
-        isLoading: Escrow.isLoading,
-        isError: Escrow.isError,
-        error: Escrow.error,
-        txn: Escrow.writeAsync,
-      },
-    });
-    setShowModal(false)
-    await axios.post("/api/trx-finish", {
-      // @ts-expect-error
-      id: status.data.from,
-      qrInfo: qrStatus.data,
-      category: "Cerveza",
-      price: localCurrencyValue,
-      country: params.country === "col" ? "COP" : "ARP",
-    });
-      // @ts-expect-error
-    router.push(`${pathname}/chat/?${createQueryString("code", formattedText)}`)
+
+    try {
+      const txn = await transfer({
+        ammount: tokenAmmount,
+        //@ts-expect-error
+        provider: provider,
+        functions: {
+          isLoading: Escrow.isLoading,
+          isError: Escrow.isError,
+          error: Escrow.error,
+          txn: Escrow.writeAsync,
+        },
+      });
+      await axios.post("/api/trx-finish", {
+        // @ts-expect-error
+        id: status.data.from,
+        qrInfo: qrStatus.data,
+        category: "Cerveza",
+        price: localCurrencyValue,
+        country: params.country === "col" ? "COP" : "ARP",
+      });
+      alert(txn)
+      setShowModal(false);
+      router.push(
+        `${pathname}/chat/?${createQueryString("code", formattedText)}`
+      );
+    } catch (e) {
+      alert(e);
+    }
   };
 
   function getAcurrancy() {
@@ -218,11 +223,14 @@ function Page({ params }: { params: any }) {
               exit={{ opacity: 0, scale: 0 }}
               className=" bg-white p-5 w-11/12 m-2 flex flex-col justify-center items-center rounded-lg"
             >
-              <h1 className="text-2xl font-bold text-center" >Estamos procesando tu transaccion</h1>
-              {!isLoading ||
-                (!isError && (
-                  <button  className="main-btn" onClick={handleOnContinueFlow}>Continuar</button>
-                ))}
+              <h1 className="text-2xl font-bold text-center">
+                Estamos procesando tu transaccion
+              </h1>
+              {!isLoading && !isError && (
+                <button className="main-btn" onClick={handleOnContinueFlow}>
+                  Continuar
+                </button>
+              )}
             </motion.div>
           </motion.div>
         )}

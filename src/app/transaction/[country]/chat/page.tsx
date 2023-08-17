@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { FaPaperPlane } from "react-icons/fa";
+import { Economica } from "next/font/google";
 
 function Page() {
   const searchParams = useSearchParams();
@@ -12,7 +13,7 @@ function Page() {
   const [messages, setmessages] = useState<any[]>([
     JSON.stringify({
       from: "admin",
-      body: "sadasdsaasdasdasdasdasdasdasdasdasdasdggdfgccx",
+      body: "Bienvenido a swapnea!",
       date: "00:20",
       type: "text",
     }),
@@ -92,6 +93,10 @@ function Page() {
   messages.map(async (a) => {
     console.debug();
   });
+
+  
+
+
 
   return (
     <main className="h-screen flex justify-center  bg-slate-200">
