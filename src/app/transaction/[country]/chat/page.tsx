@@ -93,7 +93,7 @@ function Page() {
     });
   };
 
-s
+
   const handleOnFinally = async () => {
     toast.loading('Finalizando transaccion',{
       toastId:'trx'
