@@ -5,8 +5,8 @@ const axios = require("axios");
 const token = "6658789229:AAEooWWQohoWc46yyZxzcb61737Ozjeyz20";
 
 // URL del webhook donde enviarás las imágenes
-const webhookUrl = "https://15ff24076aa6.ngrok.app/api/webhook-bot";
-const webhookUrlText = "https://15ff24076aa6.ngrok.app/api/webhook-text";
+const webhookUrl = `${process.env.BASE_URI_BOT}/api/webhook-bot`;
+const webhookUrlText = `${process.env.BASE_URI_BOT}/api/webhook-text`;
 
 import { NextResponse } from "next/server";
 
