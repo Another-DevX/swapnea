@@ -164,10 +164,8 @@ function Page({ params }: { params: any }) {
       price: localCurrencyValue,
       country: params.country === "col" ? "COP" : "ARP",
     });
-    router.push(
       // @ts-expect-error
-      `${pathname}/chat/?${createQueryString("code", formattedText)}`
-    ),
+    router.push(`${pathname}/chat/?${createQueryString("code", formattedText)}`)
   };
 
   function getAcurrancy() {
