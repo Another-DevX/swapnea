@@ -44,7 +44,6 @@ export async function transfer({
   provider,
 }: transferProps) {
   try {
-    alert([ammount * 10 ** 18, provider])
     const data = await functions.txn({
       args: [parseEther(ammount.toString()), provider],
     });

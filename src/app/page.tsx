@@ -121,6 +121,7 @@ export default function Home() {
         </div>
         <div className="absolute bottom-0 w-full justify-between py-5 px-3 flex flex-row">
           <ConnectButton />
+          
           <button onClick={() => setShowModal(true)} className="main-btn">
             Empezar
           </button>

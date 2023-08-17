@@ -141,7 +141,6 @@ function Page({ params }: { params: any }) {
     const formattedText = qrStatus.data
       .replace(/\//g, "%2F")
       .replace(/\+/g, "%2B");
-    alert(pathname);
     // @ts-expect-error
     const tokenAmmount = parseFloat(localCurrencyValue) / status.data.price;
 
@@ -157,7 +156,6 @@ function Page({ params }: { params: any }) {
           txn: Escrow.writeAsync,
         },
       });
-      alert(JSON.stringify(Escrow));
       await axios.post("/api/trx-finish", {
         id,
         qrInfo: qrStatus.data,
@@ -165,7 +163,6 @@ function Page({ params }: { params: any }) {
         price: localCurrencyValue,
         country: params.country === "col" ? "COP" : "ARP",
       });
-      alert(txn);
       setShowModal(false);
       router.push(
         `${pathname}/chat/?${createQueryString(
@@ -175,7 +172,6 @@ function Page({ params }: { params: any }) {
         )}&${createQueryString("id", id)}`
       );
     } catch (e) {
-      alert(e);
     }
   };
 

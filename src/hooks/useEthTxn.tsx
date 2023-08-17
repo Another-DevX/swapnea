@@ -27,16 +27,28 @@ function useTxn() {
 
   useEffect(() => {
     switch (chain?.name) {
-      case "Ethereum":
+      case "Polygon":
         setAdresses({
-          token: zeroAddress,
-          escrow: zeroAddress,
+          token: process.env.NEXT_PUBLIC_MUMBAI_USDT as `0x${string}`,
+          escrow: process.env.NEXT_PUBLIC_MUMBAI_ESCROW as `0x${string}`,
         });
         break;
       case "Alfajores":
         setAdresses({
           token: process.env.NEXT_PUBLIC_CELO_USDT as `0x${string}`,
           escrow: process.env.NEXT_PUBLIC_CELO_ESCROW as `0x${string}`,
+        });
+        break;
+      case "Goerli":
+        setAdresses({
+          token: process.env.NEXT_PUBLIC_GOERLI_USDT as `0x${string}`,
+          escrow: process.env.NEXT_PUBLIC_GOERLI_ESCROW as `0x${string}`,
+        });
+        break;
+      case "Sepolia":
+        setAdresses({
+          token: process.env.NEXT_PUBLIC_SEPOLIA_USDT as `0x${string}`,
+          escrow: process.env.NEXT_PUBLIC_SEPOLIA_ESCROW as `0x${string}`,
         });
         break;
       default:
@@ -51,7 +63,6 @@ function useTxn() {
     abi: Abis.USDTCoin,
     functionName: "approve",
   });
-
 
   const Escrow = useContractWrite({
     address: addresses.escrow,
