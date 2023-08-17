@@ -6,14 +6,17 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/navigation";
 import Logo from "@/images/2.png";
 import "/node_modules/flag-icons/css/flag-icons.min.css";
+import useDeviceType from "@/hooks/useDevice";
+import { useIsFuelConnected } from "@/hooks/useFuelIsConnected";
 export default function Home() {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
+  const isDesktop = useDeviceType();
   const [selections, setSelections] = useState({
     col: false,
     arg: false,
   });
-  const handleOnSubmit = (e:any) => {
+  const handleOnSubmit = (e: any) => {
     e.preventDefault();
     console.debug(e.target.country.value);
 
@@ -29,21 +32,38 @@ export default function Home() {
     }
   };
 
-  const handleOnChange = (e:ChangeEvent<HTMLInputElement>) => {
-    const defaultSelections = {
-      col:false,
-      arg:false
+  const [connected, setConnected] = useState<boolean>(false);
+  const [account, setAccount] = useState<string>("");
+  const [loaded, setLoaded] = useState(false);
+
+  async function FuelConnect() {
+    //@ts-expect-error
+    if (window.fuel) {
+      try {
+        //@ts-expect-error
+        await window.fuel.connect();
+      } catch (err) {
+        console.log("error connecting: ", err);
+      }
     }
-    console.debug((e.target as HTMLElement).id)
+  }
+  const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const defaultSelections = {
+      col: false,
+      arg: false,
+    };
+    console.debug((e.target as HTMLElement).id);
     setSelections({
       ...defaultSelections,
-      [(e.target as HTMLElement).id]: true
-    })
+      [(e.target as HTMLElement).id]: true,
+    });
   };
 
-  useEffect(()=>{
-    console.debug(selections)
-  },[selections])
+  const [isFuel ] = useIsFuelConnected()
+
+  useEffect(() => {
+    console.debug(selections);
+  }, [selections]);
 
   return (
     <>
@@ -80,7 +100,10 @@ export default function Home() {
                     id="col"
                     onChange={handleOnChange}
                   />
-                  <div id="colCont" className={`input-cont ${selections.col && 'active'}`}>
+                  <div
+                    id="colCont"
+                    className={`input-cont ${selections.col && "active"}`}
+                  >
                     <span className="fi fi-co" />
                     Colombia
                   </div>
@@ -97,10 +120,13 @@ export default function Home() {
                     id="arg"
                     onChange={handleOnChange}
                   />
-                  <div id="argCont" className={`input-cont ${selections.arg && 'active'}`}>
+                  <div
+                    id="argCont"
+                    className={`input-cont ${selections.arg && "active"}`}
+                  >
                     <span className="fi fi-ar" /> Argentina
                   </div>
-                </label>  
+                </label>
                 <button className="main-btn" type="submit">
                   Siguiente
                 </button>
@@ -117,11 +143,28 @@ export default function Home() {
           <h1 className="hex text-2xl font-bold">
             Usa tus criptos en el día a día
           </h1>
-          <p className="font-semibold text-[#2B44E7]">Con swapnea revolucionamos el p2p</p>
+          <p className="font-semibold text-[#2B44E7]">
+            Con swapnea revolucionamos el p2p
+          </p>
         </div>
         <div className="absolute bottom-0 w-full justify-between py-5 px-3 flex flex-row">
           <ConnectButton />
-          
+          {isDesktop && isFuel ? (
+            <button
+              // @ts-expect-error
+              onClick={() => window.fuel.disconnect()}
+              className="text-white font-bold py-5 px-10 rounded-md text-2xl bg-green-800 "
+            >
+              Disconnect
+            </button>
+          ) : (
+            <button
+              onClick={() => FuelConnect()}
+              className="text-white font-bold py-5 rounded-md text-2xl bg-green-800 px-10"
+            >
+              FUEL
+            </button>
+          )}
           <button onClick={() => setShowModal(true)} className="main-btn">
             Empezar
           </button>
