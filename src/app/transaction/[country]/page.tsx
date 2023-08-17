@@ -7,6 +7,7 @@ import Logo from "@/images/2.png";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
+import { useAccount, useNetwork } from "wagmi";
 
 function Page({ params }: { params: any }) {
   const [openCamera, setOpenCamera] = useState(false);
@@ -15,6 +16,7 @@ function Page({ params }: { params: any }) {
     error: false,
     data: "",
   });
+  const [localCurrencyValue, setLocalCurrencyValue] = useState(0);
   const [tokenValue, setTokenValue] = useState(0);
   const router = useRouter();
   const pathname = usePathname();
@@ -58,8 +60,7 @@ function Page({ params }: { params: any }) {
     [searchParams]
   );
 
-
-  const handleOnQRScan = (d, t) => {
+  const handleOnQRScan = (d: string, t: any) => {
     console.debug(d, t);
     setOpenCamera(false);
     setQrStatus({
@@ -70,27 +71,45 @@ function Page({ params }: { params: any }) {
   };
 
   const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (status.data === undefined || status.data === null) {
+    if (status.data === undefined || status.data === null)
       return setTokenValue(0);
-    }
-    console.debug(e.target.value)
-    console.debug(status.data)
-  
+    console.debug(e.target.value);
+    console.debug(status.data);
+
     const inputValue = parseFloat(e.target.value); // Convertir el valor a número
     if (isNaN(inputValue)) {
       return; // Salir si el valor no es un número
     }
-  
-    const calculatedValue = status.data.price / inputValue;
-    setTokenValue(calculatedValue);
+
+    // @ts-expect-error
+    const calculatedValue = inputValue / status.data.price;
+    setLocalCurrencyValue(parseFloat(e.target.value));
+    setTokenValue(Number(calculatedValue.toFixed(2)));
   };
-  
+
+  const { address } = useAccount();
+  const { chain } = useNetwork();
 
   const handleOnPay = async (e: any) => {
     e.preventDefault();
     const formattedText = qrStatus.data
       .replace(/\//g, "%2F")
       .replace(/\+/g, "%2B");
+
+    try {
+      if (!status.data) {
+        throw new Error("Failed to load the txn data");
+      }
+      await axios.post("/api/trx", {
+        // @ts-expect-error
+        provider: status.data.from,
+        address: address,
+        currency: "USDT",
+        network: chain?.name,
+        amount: localCurrencyValue,
+        amountUsed: tokenValue,
+      });
+    } catch (e) {}
 
     router.push(
       `${pathname}/chat/?${createQueryString("code", formattedText)}`
@@ -162,6 +181,7 @@ function Page({ params }: { params: any }) {
                 className="h-12 rounded-md px-2"
                 required
                 type="number"
+                value={localCurrencyValue}
                 onChange={handleOnChange}
                 placeholder={`Monto en ${getAcurrancy()}`}
               />
