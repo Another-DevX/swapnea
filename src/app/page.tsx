@@ -6,7 +6,6 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/navigation";
 import Logo from "@/images/2.png";
 import "/node_modules/flag-icons/css/flag-icons.min.css";
-
 export default function Home() {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
