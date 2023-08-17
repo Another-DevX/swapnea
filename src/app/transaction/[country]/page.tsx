@@ -54,6 +54,18 @@ function page() {
     );
   };
 
+  function getAcurrancy (){
+    const region = pathname.split('/')[pathname.split('/').length - 1]
+    switch (region){
+      case 'col' : 
+        return 'COP'
+      case 'arg':
+        return 'ARS'
+      default:
+        return
+    }
+  }
+
   return (
     <main className="min-h-screen h-full w-full flex flex-col  items-center gap-2">
       <AnimatePresence>
@@ -107,7 +119,7 @@ function page() {
               className="h-12 rounded-md px-2"
               required
               type="number"
-              placeholder="Monto en USD"
+              placeholder={`Monto en ${getAcurrancy()}`}
               inputMode="decimal"
               step={0.0001}
             />

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/navigation";
 import Logo from "@/images/2.png";
+import "/node_modules/flag-icons/css/flag-icons.min.css";
 
 export default function Home() {
   const router = useRouter();
@@ -115,9 +116,9 @@ export default function Home() {
         </div>
         <div className="text-center">
           <h1 className="hex text-2xl font-bold">
-            Usá tus criptos en el día a día
+            Usa tus criptos en el día a día
           </h1>
-          <p className="font-light">Con swapnea revolucionamos el p2p</p>
+          <p className="font-semibold text-[#2B44E7]">Con swapnea revolucionamos el p2p</p>
         </div>
         <div className="absolute bottom-0 w-full justify-between py-5 px-3 flex flex-row">
           <ConnectButton />
