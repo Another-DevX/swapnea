@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
 import ChainButton from "@/components/ChainButton";
 import QR from "@/components/QR";
 import Image from "next/image";
@@ -9,6 +9,13 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 
 function Page({ params }: { params: any }) {
+  const [openCamera, setOpenCamera] = useState(false);
+  const [qrStatus, setQrStatus] = useState({
+    readed: false,
+    error: false,
+    data: "",
+  });
+  const [tokenValue, setTokenValue] = useState(0);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams()!;
@@ -25,7 +32,7 @@ function Page({ params }: { params: any }) {
         const response = await axios.get(`/api/trx?country=${params.country}`);
         console.debug(response);
         setStatus({
-          data: response.data,
+          data: response.data.trx,
           isLoading: false,
           isError: false,
         });
@@ -51,13 +58,6 @@ function Page({ params }: { params: any }) {
     [searchParams]
   );
 
-  const [openCamera, setOpenCamera] = useState(false);
-  const [qrStatus, setQrStatus] = useState({
-    readed: false,
-    error: false,
-    data: "",
-  });
-  const [tokenValue, setTokenValue] = useState(0);
 
   const handleOnQRScan = (d, t) => {
     console.debug(d, t);
@@ -68,6 +68,23 @@ function Page({ params }: { params: any }) {
       data: d,
     });
   };
+
+  const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (status.data === undefined || status.data === null) {
+      return setTokenValue(0);
+    }
+    console.debug(e.target.value)
+    console.debug(status.data)
+  
+    const inputValue = parseFloat(e.target.value); // Convertir el valor a número
+    if (isNaN(inputValue)) {
+      return; // Salir si el valor no es un número
+    }
+  
+    const calculatedValue = status.data.price / inputValue;
+    setTokenValue(calculatedValue);
+  };
+  
 
   const handleOnPay = async (e: any) => {
     e.preventDefault();
@@ -145,9 +162,8 @@ function Page({ params }: { params: any }) {
                 className="h-12 rounded-md px-2"
                 required
                 type="number"
+                onChange={handleOnChange}
                 placeholder={`Monto en ${getAcurrancy()}`}
-                inputMode="decimal"
-                step={0.0001}
               />
             </div>
             <div className="cont">
