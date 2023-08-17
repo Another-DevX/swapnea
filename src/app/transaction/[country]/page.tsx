@@ -8,7 +8,7 @@ import Logo from "@/images/2.png";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-function page() {
+function Page() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams()!;

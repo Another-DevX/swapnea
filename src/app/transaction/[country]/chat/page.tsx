@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { FaPaperPlane } from "react-icons/fa";
 
-function page() {
+function Page() {
   const searchParams = useSearchParams();
   const data = searchParams.get("code");
 
@@ -162,4 +162,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;
