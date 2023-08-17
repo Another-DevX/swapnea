@@ -103,16 +103,16 @@ function Page({ params }: { params: any }) {
     e.preventDefault();
     if (isFuel) {
       //@ts-expect-error
-      const { fuel } = window;
-      const accounts = await fuel.accounts();
-      const account = accounts[0];
-      const wallet = await fuel.getWallet(account);
-      const response = await wallet.transfer(
-        "0x0000000000000000000000000000000000000000",
-        BigInt(1 * 10 ** 18),
-        "0x0000000000000000000000000000000000000001"
-      );
-      console.log("Transaction created!", response.id);
+     // const { fuel } = window;
+     // const accounts = await fuel.accounts();
+     // const account = accounts[0];
+     // const wallet = await fuel.getWallet(account);
+     // const response = await wallet.transfer(
+     //   "0x0000000000000000000000000000000000000000",
+     //   1 * 10 ** 18,
+     //   "0x0000000000000000000000000000000000000001"
+     // );
+     // console.log("Transaction created!", response.id);
     }
 
     if (isFuel) return;
