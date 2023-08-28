@@ -102,7 +102,6 @@ function Page({ params }: { params: any }) {
   const handleOnPay = async (e: any) => {
     e.preventDefault();
     if (isFuel) {
-      //@ts-expect-error
      // const { fuel } = window;
      // const accounts = await fuel.accounts();
      // const account = accounts[0];
